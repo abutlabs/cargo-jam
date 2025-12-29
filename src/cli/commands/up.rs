@@ -20,7 +20,8 @@ pub fn execute(args: UpArgs) -> Result<()> {
     let testnet_bin = ToolchainConfig::binary_path("polkajam-testnet")?.ok_or_else(|| {
         CargoJamError::ToolchainMissing {
             tool: "polkajam-testnet".to_string(),
-            install_hint: "Run 'cargo polkajam setup --force' to reinstall the toolchain".to_string(),
+            install_hint: "Run 'cargo polkajam setup --force' to reinstall the toolchain"
+                .to_string(),
         }
     })?;
 
@@ -92,7 +93,10 @@ pub fn execute(args: UpArgs) -> Result<()> {
         );
         println!("  RPC endpoint: {}", style("ws://localhost:19800").green());
         println!("\n  Stop with: {}", style("cargo polkajam down").cyan());
-        println!("  View logs: {}", style("cargo polkajam up --foreground").dim());
+        println!(
+            "  View logs: {}",
+            style("cargo polkajam up --foreground").dim()
+        );
     }
 
     Ok(())
