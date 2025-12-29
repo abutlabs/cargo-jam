@@ -260,13 +260,13 @@ pub fn execute(args: TestArgs) -> Result<()> {
 }
 
 fn run_cargo_jam(args: &[&str], cwd: Option<&PathBuf>, verbose: bool) -> Result<String> {
-    let cargo_jam = std::env::current_exe()
+    let cargo_polkajam = std::env::current_exe()
         .ok()
-        .and_then(|p| p.parent().map(|p| p.join("cargo-jam")))
-        .unwrap_or_else(|| PathBuf::from("cargo-jam"));
+        .and_then(|p| p.parent().map(|p| p.join("cargo-polkajam")))
+        .unwrap_or_else(|| PathBuf::from("cargo-polkajam"));
 
-    let mut cmd = Command::new(&cargo_jam);
-    cmd.arg("jam");
+    let mut cmd = Command::new(&cargo_polkajam);
+    cmd.arg("polkajam");
     cmd.args(args);
 
     if let Some(dir) = cwd {
@@ -275,16 +275,16 @@ fn run_cargo_jam(args: &[&str], cwd: Option<&PathBuf>, verbose: bool) -> Result<
 
     if verbose {
         println!(
-            "  {} {:?} jam {}",
+            "  {} {:?} polkajam {}",
             style("$").dim(),
-            cargo_jam,
+            cargo_polkajam,
             args.join(" ")
         );
     }
 
     let output = cmd
         .output()
-        .map_err(|e| CargoJamError::Build(format!("Failed to execute cargo-jam: {}", e)))?;
+        .map_err(|e| CargoJamError::Build(format!("Failed to execute cargo-polkajam: {}", e)))?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -323,7 +323,7 @@ fn is_testnet_process_running() -> bool {
         None => return false,
     };
 
-    let pid_file = home_dir.join(".cargo-jam").join("testnet.pid");
+    let pid_file = home_dir.join(".cargo-polkajam").join("testnet.pid");
     if !pid_file.exists() {
         return false;
     }

@@ -54,13 +54,13 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact: cargo-jam-linux-x86_64
+            artifact: cargo-polkajam-linux-x86_64
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact: cargo-jam-macos-x86_64
+            artifact: cargo-polkajam-macos-x86_64
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact: cargo-jam-macos-aarch64
+            artifact: cargo-polkajam-macos-aarch64
 
     steps:
       - uses: actions/checkout@v4
@@ -76,7 +76,7 @@ jobs:
       - name: Package binary (Unix)
         run: |
           cd target/${{ matrix.target }}/release
-          tar -czvf ../../../${{ matrix.artifact }}.tar.gz cargo-jam
+          tar -czvf ../../../${{ matrix.artifact }}.tar.gz cargo-polkajam
           cd ../../..
 
       - name: Upload artifact

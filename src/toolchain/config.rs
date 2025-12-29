@@ -14,7 +14,7 @@ pub struct ToolchainConfig {
 }
 
 impl ToolchainConfig {
-    /// Get the cargo-jam home directory (~/.cargo-jam)
+    /// Get the cargo-jam home directory (~/.cargo-polkajam)
     pub fn home_dir() -> Result<PathBuf> {
         let home = dirs::home_dir().ok_or_else(|| {
             CargoJamError::Io(std::io::Error::new(
@@ -22,15 +22,15 @@ impl ToolchainConfig {
                 "Could not determine home directory",
             ))
         })?;
-        Ok(home.join(".cargo-jam"))
+        Ok(home.join(".cargo-polkajam"))
     }
 
-    /// Get the config file path (~/.cargo-jam/config.toml)
+    /// Get the config file path (~/.cargo-polkajam/config.toml)
     pub fn config_path() -> Result<PathBuf> {
         Ok(Self::home_dir()?.join("config.toml"))
     }
 
-    /// Get the toolchain installation directory (~/.cargo-jam/toolchain)
+    /// Get the toolchain installation directory (~/.cargo-polkajam/toolchain)
     pub fn toolchain_dir() -> Result<PathBuf> {
         Ok(Self::home_dir()?.join("toolchain"))
     }

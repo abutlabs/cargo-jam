@@ -1,4 +1,4 @@
-//! End-to-end testnet deployment tests for cargo-jam
+//! End-to-end testnet deployment tests for cargo-polkajam
 //!
 //! These tests require a running local testnet.
 //!
@@ -6,7 +6,7 @@
 //!
 //! 1. Start the local testnet in one terminal:
 //!    ```bash
-//!    ~/.cargo-jam/toolchain/polkajam-nightly/polkajam-testnet
+//!    ~/.cargo-polkajam/toolchain/polkajam-nightly/polkajam-testnet
 //!    ```
 //!
 //! 2. Run the testnet tests in another terminal:
@@ -21,12 +21,12 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
-/// Get the path to the cargo-jam binary
+/// Get the path to the cargo-polkajam binary
 fn cargo_jam_bin() -> PathBuf {
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     path.push("target");
     path.push("debug");
-    path.push("cargo-jam");
+    path.push("cargo-polkajam");
     path
 }
 
@@ -34,7 +34,7 @@ fn cargo_jam_bin() -> PathBuf {
 fn jamt_bin() -> Option<PathBuf> {
     let home = dirs::home_dir()?;
     let jamt = home
-        .join(".cargo-jam")
+        .join(".cargo-polkajam")
         .join("toolchain")
         .join("polkajam-nightly")
         .join("jamt");
@@ -49,7 +49,7 @@ fn jamt_bin() -> Option<PathBuf> {
 fn testnet_bin() -> Option<PathBuf> {
     let home = dirs::home_dir()?;
     let testnet = home
-        .join(".cargo-jam")
+        .join(".cargo-polkajam")
         .join("toolchain")
         .join("polkajam-nightly")
         .join("polkajam-testnet");
@@ -62,7 +62,7 @@ fn testnet_bin() -> Option<PathBuf> {
 
 /// Create a temporary directory for tests
 fn temp_dir() -> PathBuf {
-    let dir = std::env::temp_dir().join(format!("cargo-jam-testnet-{}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!("cargo-polkajam-testnet-{}", std::process::id()));
     fs::create_dir_all(&dir).expect("Failed to create temp dir");
     dir
 }
@@ -98,7 +98,7 @@ fn test_full_deployment_workflow() {
     if !is_testnet_running() {
         panic!(
             "Testnet is not running!\n\
-             Start it with: ~/.cargo-jam/toolchain/polkajam-nightly/polkajam-testnet\n\
+             Start it with: ~/.cargo-polkajam/toolchain/polkajam-nightly/polkajam-testnet\n\
              Then re-run this test."
         );
     }
@@ -109,28 +109,28 @@ fn test_full_deployment_workflow() {
 
     println!("=== Step 1: Creating new JAM service ===");
     let new_output = Command::new(cargo_jam_bin())
-        .args(["jam", "new", project_name, "--defaults"])
+        .args(["polkajam", "new", project_name, "--defaults"])
         .current_dir(&temp)
         .output()
-        .expect("Failed to run cargo-jam jam new");
+        .expect("Failed to run cargo-polkajam jam new");
 
     assert!(
         new_output.status.success(),
-        "cargo-jam new failed: {:?}",
+        "cargo-polkajam new failed: {:?}",
         String::from_utf8_lossy(&new_output.stderr)
     );
     println!("Created project at {:?}", project_path);
 
     println!("=== Step 2: Building JAM service ===");
     let build_output = Command::new(cargo_jam_bin())
-        .args(["jam", "build"])
+        .args(["polkajam", "build"])
         .current_dir(&project_path)
         .output()
-        .expect("Failed to run cargo-jam jam build");
+        .expect("Failed to run cargo-polkajam jam build");
 
     assert!(
         build_output.status.success(),
-        "cargo-jam build failed: {:?}",
+        "cargo-polkajam build failed: {:?}",
         String::from_utf8_lossy(&build_output.stderr)
     );
 
@@ -200,7 +200,7 @@ fn test_testnet_connection() {
     if !is_testnet_running() {
         panic!(
             "Testnet is not running!\n\
-             Start it with: ~/.cargo-jam/toolchain/polkajam-nightly/polkajam-testnet"
+             Start it with: ~/.cargo-polkajam/toolchain/polkajam-nightly/polkajam-testnet"
         );
     }
 

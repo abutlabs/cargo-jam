@@ -1,6 +1,6 @@
-# cargo-jam
+# cargo-polkajam
 
-[![CI](https://github.com/abutlabs/cargo-jam/actions/workflows/ci.yml/badge.svg)](https://github.com/abutlabs/cargo-jam/actions/workflows/ci.yml)
+[![CI](https://github.com/abutlabs/cargo-polkajam/actions/workflows/ci.yml/badge.svg)](https://github.com/abutlabs/cargo-polkajam/actions/workflows/ci.yml)
 
 cargo, make me a JAM service
 
@@ -15,14 +15,14 @@ A Rust cargo subcommand for generating and building JAM (Join-Accumulate Machine
 ### Install From crates.io
 
 ```bash
-cargo install cargo-jam
+cargo install cargo-polkajam
 ```
 
 ### Install From source
 
 ```bash
-git clone https://github.com/abutlabs/cargo-jam
-cd cargo-jam
+git clone https://github.com/abutlabs/cargo-polkajam
+cd cargo-polkajam
 cargo install --path .
 ```
 
@@ -34,7 +34,7 @@ cargo install --path . --force
 
 ## Prerequisites
 
-Before using cargo-jam, you need:
+Before using cargo-polkajam, you need:
 
 1. **Rust toolchain** with nightly support
 2. **jam-pvm-build** - PVM bytecode compiler
@@ -47,52 +47,52 @@ cargo install jam-pvm-build
 
 ```bash
 # 1. Install the JAM toolchain (downloads polkajam binaries)
-cargo jam setup
+cargo polkajam setup
 
 # 2. Create a new JAM service
-cargo jam new my-service
+cargo polkajam new my-service
 
 # 3. Build the service
 cd my-service
-cargo jam build
+cargo polkajam build
 
 # 4. Start local testnet
-cargo jam up
+cargo polkajam up
 
 # 5. Deploy to testnet (in another terminal)
-cargo jam deploy my-service.jam
+cargo polkajam deploy my-service.jam
 
 # 6. Stop testnet when done
-cargo jam down
+cargo polkajam down
 ```
 
 ## Commands
 
-### `cargo jam setup`
+### `cargo polkajam setup`
 
 Downloads and installs the JAM/polkajam toolchain from [polkajam-releases](https://github.com/paritytech/polkajam-releases).
 
 ```bash
 # Install latest nightly
-cargo jam setup
+cargo polkajam setup
 
 # List available versions
-cargo jam setup --list
+cargo polkajam setup --list
 
 # Show installed toolchain info
-cargo jam setup --info
+cargo polkajam setup --info
 
 # Install specific version
-cargo jam setup --version nightly-2025-12-29
+cargo polkajam setup --version nightly-2025-12-29
 
 # Force reinstall
-cargo jam setup --force
+cargo polkajam setup --force
 
 # Update to latest
-cargo jam setup --update
+cargo polkajam setup --update
 ```
 
-**Installed binaries** (in `~/.cargo-jam/toolchain/polkajam-nightly/`):
+**Installed binaries** (in `~/.cargo-polkajam/toolchain/polkajam-nightly/`):
 - `polkajam` - JAM node
 - `jamt` - JAM CLI tool for deployment
 - `polkajam-testnet` - Local testnet runner
@@ -100,22 +100,22 @@ cargo jam setup --update
 - `corevm-builder` - CoreVM builder
 - And more...
 
-### `cargo jam new`
+### `cargo polkajam new`
 
 Creates a new JAM service project from a template.
 
 ```bash
 # Interactive mode
-cargo jam new my-service
+cargo polkajam new my-service
 
 # Skip prompts, use defaults
-cargo jam new my-service --defaults
+cargo polkajam new my-service --defaults
 
 # Use custom git template
-cargo jam new my-service --git https://github.com/user/template
+cargo polkajam new my-service --git https://github.com/user/template
 
 # Specify template values
-cargo jam new my-service -d author="Your Name" -d license=MIT
+cargo polkajam new my-service -d author="Your Name" -d license=MIT
 ```
 
 **Options:**
@@ -128,22 +128,22 @@ cargo jam new my-service -d author="Your Name" -d license=MIT
 - `-d, --define <key=value>` - Set template variable
 - `--no-git` - Don't initialize git repository
 
-### `cargo jam build`
+### `cargo polkajam build`
 
 Builds a JAM service into a `.jam` blob using `jam-pvm-build`.
 
 ```bash
 # Build in release mode (default)
-cargo jam build
+cargo polkajam build
 
 # Build specific project
-cargo jam build --path /path/to/service
+cargo polkajam build --path /path/to/service
 
 # Custom output path
-cargo jam build --output my-service.jam
+cargo polkajam build --output my-service.jam
 
 # Verbose output
-cargo jam build --verbose
+cargo polkajam build --verbose
 ```
 
 **Options:**
@@ -152,19 +152,19 @@ cargo jam build --verbose
 - `-o, --output <path>` - Output path for .jam blob
 - `-v, --verbose` - Verbose output
 
-### `cargo jam up`
+### `cargo polkajam up`
 
 Starts the local JAM testnet.
 
 ```bash
 # Start in background (default)
-cargo jam up
+cargo polkajam up
 
 # Start in foreground (see logs)
-cargo jam up --foreground
+cargo polkajam up --foreground
 
 # Custom RPC endpoint
-cargo jam up --rpc ws://localhost:9944
+cargo polkajam up --rpc ws://localhost:9944
 ```
 
 **Options:**
@@ -172,41 +172,41 @@ cargo jam up --rpc ws://localhost:9944
 - `--rpc <url>` - RPC endpoint (default: ws://localhost:19800)
 - `-v, --verbose` - Verbose output
 
-### `cargo jam down`
+### `cargo polkajam down`
 
 Stops the local JAM testnet.
 
 ```bash
 # Stop the testnet gracefully
-cargo jam down
+cargo polkajam down
 
 # Force kill
-cargo jam down --force
+cargo polkajam down --force
 ```
 
 **Options:**
 - `--force` - Force kill with SIGKILL instead of SIGTERM
 - `-v, --verbose` - Verbose output
 
-### `cargo jam deploy`
+### `cargo polkajam deploy`
 
 Deploys a JAM service to the network.
 
 ```bash
 # Deploy a service
-cargo jam deploy my-service.jam
+cargo polkajam deploy my-service.jam
 
 # Deploy with initial balance
-cargo jam deploy my-service.jam --amount 1000
+cargo polkajam deploy my-service.jam --amount 1000
 
 # Deploy with memo
-cargo jam deploy my-service.jam --memo "my memo data"
+cargo polkajam deploy my-service.jam --memo "my memo data"
 
 # Deploy to custom RPC endpoint
-cargo jam deploy my-service.jam --rpc ws://localhost:9944
+cargo polkajam deploy my-service.jam --rpc ws://localhost:9944
 
 # Register service with a name
-cargo jam deploy my-service.jam --register my_service
+cargo polkajam deploy my-service.jam --register my_service
 ```
 
 **Options:**
@@ -218,41 +218,41 @@ cargo jam deploy my-service.jam --register my_service
 - `--rpc <url>` - RPC endpoint (default: ws://localhost:19800)
 - `-v, --verbose` - Verbose output
 
-### `cargo jam monitor`
+### `cargo polkajam monitor`
 
 Monitor the testnet with an interactive TUI (jamtop).
 
 ```bash
 # Start the monitor
-cargo jam monitor
+cargo polkajam monitor
 
 # Monitor with custom RPC endpoint
-cargo jam monitor --rpc ws://localhost:9944
+cargo polkajam monitor --rpc ws://localhost:9944
 ```
 
 **Options:**
 - `--rpc <url>` - RPC endpoint (default: ws://localhost:19800)
 - `-v, --verbose` - Verbose output
 
-### `cargo jam test`
+### `cargo polkajam test`
 
 Run comprehensive end-to-end tests that verify the entire workflow.
 
 ```bash
 # Run full test suite
-cargo jam test
+cargo polkajam test
 
 # Run tests with verbose output
-cargo jam test --verbose
+cargo polkajam test --verbose
 
 # Keep testnet running after tests (for debugging)
-cargo jam test --keep-running
+cargo polkajam test --keep-running
 
 # Skip testnet startup (use already running testnet)
-cargo jam test --skip-testnet
+cargo polkajam test --skip-testnet
 
 # Use custom test directory
-cargo jam test --dir /tmp/my-test
+cargo polkajam test --dir /tmp/my-test
 ```
 
 **Options:**
@@ -262,8 +262,8 @@ cargo jam test --dir /tmp/my-test
 - `-v, --verbose` - Verbose output with command details
 
 **Tests performed:**
-1. Create new JAM service (`cargo jam new`)
-2. Build JAM service to `.jam` blob (`cargo jam build`)
+1. Create new JAM service (`cargo polkajam new`)
+2. Build JAM service to `.jam` blob (`cargo polkajam build`)
 3. Deploy to local testnet (start → deploy → stop)
 
 ## Local Development
@@ -284,14 +284,14 @@ cargo build && cargo install --path . --force
 
 ```bash
 # Make changes, rebuild, and test
-cargo build && cargo install --path . --force && cargo jam setup --info
+cargo build && cargo install --path . --force && cargo polkajam setup --info
 ```
 
 ### Uninstall
 
 ```bash
-cargo uninstall cargo-jam
-rm -rf ~/.cargo-jam  # Remove toolchain and config
+cargo uninstall cargo-polkajam
+rm -rf ~/.cargo-polkajam  # Remove toolchain and config
 ```
 
 ## Testing with Local Testnet
@@ -300,42 +300,42 @@ rm -rf ~/.cargo-jam  # Remove toolchain and config
 
 ```bash
 # Terminal 1: Start the testnet
-cargo jam up --foreground
+cargo polkajam up --foreground
 
 # Terminal 2: Create and deploy a service
-cargo jam new test-service --defaults
+cargo polkajam new test-service --defaults
 cd test-service
-cargo jam build
-cargo jam deploy test-service.jam
+cargo polkajam build
+cargo polkajam deploy test-service.jam
 
 # Stop the testnet when done
-cargo jam down
+cargo polkajam down
 ```
 
 ### Background mode workflow
 
 ```bash
 # Start testnet in background
-cargo jam up
+cargo polkajam up
 
 # Create, build, and deploy
-cargo jam new test-service --defaults
+cargo polkajam new test-service --defaults
 cd test-service
-cargo jam build
-cargo jam deploy test-service.jam
+cargo polkajam build
+cargo polkajam deploy test-service.jam
 
 # Stop testnet
-cargo jam down
+cargo polkajam down
 ```
 
 ### Additional testnet tools
 
 ```bash
 # Monitor with jamtop
-cargo jam monitor
+cargo polkajam monitor
 
 # Interactive REPL
-~/.cargo-jam/toolchain/polkajam-nightly/polkajam-repl
+~/.cargo-polkajam/toolchain/polkajam-nightly/polkajam-repl
 ```
 
 ## Project Structure
@@ -389,10 +389,10 @@ impl Service for MyService {
 
 ## Configuration
 
-Configuration is stored in `~/.cargo-jam/`:
+Configuration is stored in `~/.cargo-polkajam/`:
 
 ```
-~/.cargo-jam/
+~/.cargo-polkajam/
 ├── config.toml              # Toolchain configuration
 └── toolchain/
     └── polkajam-nightly/    # Installed binaries
@@ -401,7 +401,7 @@ Configuration is stored in `~/.cargo-jam/`:
 **config.toml:**
 ```toml
 installed_version = "nightly-2025-12-29"
-toolchain_path = "/Users/you/.cargo-jam/toolchain"
+toolchain_path = "/Users/you/.cargo-polkajam/toolchain"
 installed_at = "1767015039"
 ```
 
@@ -409,14 +409,14 @@ installed_at = "1767015039"
 
 ### End-to-end tests (recommended)
 
-The easiest way to test the entire cargo-jam workflow:
+The easiest way to test the entire cargo-polkajam workflow:
 
 ```bash
 # Run full end-to-end test suite
-cargo jam test
+cargo polkajam test
 
 # Run with verbose output
-cargo jam test --verbose
+cargo polkajam test --verbose
 ```
 
 This automatically tests: new → build → up → deploy → down
@@ -444,7 +444,7 @@ These tests require a running local testnet:
 
 ```bash
 # Terminal 1: Start the testnet
-cargo jam up --foreground
+cargo polkajam up --foreground
 
 # Terminal 2: Run testnet tests
 cargo test --test testnet_tests -- --ignored --nocapture
@@ -453,7 +453,7 @@ cargo test --test testnet_tests -- --ignored --nocapture
 The testnet tests will:
 1. Create a new JAM service
 2. Build it to a `.jam` blob
-3. Deploy it to the running testnet using `cargo jam deploy`
+3. Deploy it to the running testnet using `cargo polkajam deploy`
 
 ## Publishing & Releases
 

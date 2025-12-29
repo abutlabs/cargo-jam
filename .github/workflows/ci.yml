@@ -40,16 +40,16 @@ jobs:
       - name: Run unit tests
         run: cargo test --lib
 
-      - name: Install cargo-jam
+      - name: Install cargo-polkajam
         run: cargo install --path . --force
 
       - name: Setup JAM toolchain
-        run: cargo jam setup
+        run: cargo polkajam setup
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify toolchain installation
-        run: cargo jam setup --info
+        run: cargo polkajam setup --info
 
   e2e-test:
     name: End-to-End Tests
@@ -73,11 +73,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - name: Install cargo-jam
+      - name: Install cargo-polkajam
         run: cargo install --path . --force
 
       - name: Setup JAM toolchain
-        run: cargo jam setup
+        run: cargo polkajam setup
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -85,7 +85,7 @@ jobs:
         run: cargo install jam-pvm-build
 
       - name: Run end-to-end tests (skip testnet deployment)
-        run: cargo jam test --verbose --skip-testnet
+        run: cargo polkajam test --verbose --skip-testnet
         timeout-minutes: 10
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

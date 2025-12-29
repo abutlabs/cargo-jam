@@ -1,4 +1,4 @@
-//! Integration tests for cargo-jam CLI commands
+//! Integration tests for cargo-polkajam CLI commands
 //!
 //! Run with: cargo test --test integration_tests
 //!
@@ -10,19 +10,22 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
-/// Get the path to the cargo-jam binary
+/// Get the path to the cargo-polkajam binary
 fn cargo_jam_bin() -> PathBuf {
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     path.push("target");
     path.push("debug");
-    path.push("cargo-jam");
+    path.push("cargo-polkajam");
     path
 }
 
 /// Create a temporary directory for tests
 fn temp_dir() -> PathBuf {
-    let dir =
-        std::env::temp_dir().join(format!("cargo-jam-test-{}-{}", std::process::id(), rand()));
+    let dir = std::env::temp_dir().join(format!(
+        "cargo-polkajam-test-{}-{}",
+        std::process::id(),
+        rand()
+    ));
     // Clean up if it exists from a previous run
     if dir.exists() {
         fs::remove_dir_all(&dir).ok();
@@ -50,9 +53,9 @@ fn cleanup(dir: &PathBuf) {
 #[test]
 fn test_help() {
     let output = Command::new(cargo_jam_bin())
-        .args(["jam", "--help"])
+        .args(["polkajam", "--help"])
         .output()
-        .expect("Failed to run cargo-jam jam --help");
+        .expect("Failed to run cargo-polkajam jam --help");
 
     assert!(output.status.success());
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -63,9 +66,9 @@ fn test_help() {
 fn test_setup_info_no_toolchain() {
     // This test checks --info when no toolchain might be installed
     let output = Command::new(cargo_jam_bin())
-        .args(["jam", "setup", "--info"])
+        .args(["polkajam", "setup", "--info"])
         .output()
-        .expect("Failed to run cargo-jam jam setup --info");
+        .expect("Failed to run cargo-polkajam jam setup --info");
 
     // Should succeed regardless of installation status
     assert!(output.status.success());
@@ -76,9 +79,9 @@ fn test_setup_info_no_toolchain() {
 #[test]
 fn test_setup_list() {
     let output = Command::new(cargo_jam_bin())
-        .args(["jam", "setup", "--list"])
+        .args(["polkajam", "setup", "--list"])
         .output()
-        .expect("Failed to run cargo-jam jam setup --list");
+        .expect("Failed to run cargo-polkajam jam setup --list");
 
     assert!(output.status.success());
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -93,14 +96,14 @@ fn test_new_creates_project() {
     let project_path = temp.join(project_name);
 
     let output = Command::new(cargo_jam_bin())
-        .args(["jam", "new", project_name, "--defaults"])
+        .args(["polkajam", "new", project_name, "--defaults"])
         .current_dir(&temp)
         .output()
-        .expect("Failed to run cargo-jam jam new");
+        .expect("Failed to run cargo-polkajam jam new");
 
     assert!(
         output.status.success(),
-        "cargo-jam new failed: {:?}",
+        "cargo-polkajam new failed: {:?}",
         String::from_utf8_lossy(&output.stderr)
     );
 
@@ -149,10 +152,10 @@ fn test_new_with_custom_name() {
     let project_path = temp.join(project_name);
 
     let output = Command::new(cargo_jam_bin())
-        .args(["jam", "new", project_name, "--defaults"])
+        .args(["polkajam", "new", project_name, "--defaults"])
         .current_dir(&temp)
         .output()
-        .expect("Failed to run cargo-jam jam new");
+        .expect("Failed to run cargo-polkajam jam new");
 
     assert!(output.status.success());
 
@@ -172,13 +175,13 @@ fn test_new_with_custom_name() {
 fn test_setup_installs_toolchain() {
     // This test actually downloads the toolchain - may take a while
     let output = Command::new(cargo_jam_bin())
-        .args(["jam", "setup"])
+        .args(["polkajam", "setup"])
         .output()
-        .expect("Failed to run cargo-jam jam setup");
+        .expect("Failed to run cargo-polkajam jam setup");
 
     assert!(
         output.status.success(),
-        "cargo-jam setup failed: {:?}",
+        "cargo-polkajam setup failed: {:?}",
         String::from_utf8_lossy(&output.stderr)
     );
 
@@ -188,7 +191,7 @@ fn test_setup_installs_toolchain() {
     // Verify toolchain was installed
     let home = dirs::home_dir().expect("No home dir");
     let toolchain_path = home
-        .join(".cargo-jam")
+        .join(".cargo-polkajam")
         .join("toolchain")
         .join("polkajam-nightly");
     assert!(toolchain_path.exists(), "Toolchain directory not created");
@@ -212,23 +215,23 @@ fn test_build_creates_jam_blob() {
 
     // Create a new project
     let new_output = Command::new(cargo_jam_bin())
-        .args(["jam", "new", project_name, "--defaults"])
+        .args(["polkajam", "new", project_name, "--defaults"])
         .current_dir(&temp)
         .output()
-        .expect("Failed to run cargo-jam jam new");
+        .expect("Failed to run cargo-polkajam jam new");
 
-    assert!(new_output.status.success(), "cargo-jam new failed");
+    assert!(new_output.status.success(), "cargo-polkajam new failed");
 
     // Build the project
     let build_output = Command::new(cargo_jam_bin())
-        .args(["jam", "build"])
+        .args(["polkajam", "build"])
         .current_dir(&project_path)
         .output()
-        .expect("Failed to run cargo-jam jam build");
+        .expect("Failed to run cargo-polkajam jam build");
 
     assert!(
         build_output.status.success(),
-        "cargo-jam build failed: {:?}",
+        "cargo-polkajam build failed: {:?}",
         String::from_utf8_lossy(&build_output.stderr)
     );
 
@@ -249,10 +252,10 @@ fn test_build_fails_without_jam_project() {
 
     // Create an empty directory (not a JAM project)
     let output = Command::new(cargo_jam_bin())
-        .args(["jam", "build"])
+        .args(["polkajam", "build"])
         .current_dir(&temp)
         .output()
-        .expect("Failed to run cargo-jam jam build");
+        .expect("Failed to run cargo-polkajam jam build");
 
     assert!(
         !output.status.success(),

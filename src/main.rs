@@ -1,6 +1,6 @@
 use anyhow::Result;
-use cargo_jam::cli::args::{Cargo, JamCommand};
-use cargo_jam::cli::commands;
+use cargo_polkajam::cli::args::{Cargo, PolkajamCommand};
+use cargo_polkajam::cli::commands;
 use clap::Parser;
 use console::style;
 
@@ -20,31 +20,31 @@ fn main() {
 }
 
 fn run() -> Result<()> {
-    let Cargo::Jam(args) = Cargo::parse();
+    let Cargo::Polkajam(args) = Cargo::parse();
 
     match args.command {
-        JamCommand::New(new_args) => {
+        PolkajamCommand::New(new_args) => {
             commands::new::execute(new_args)?;
         }
-        JamCommand::Build(build_args) => {
+        PolkajamCommand::Build(build_args) => {
             commands::build::execute(build_args)?;
         }
-        JamCommand::Setup(setup_args) => {
+        PolkajamCommand::Setup(setup_args) => {
             commands::setup::execute(setup_args)?;
         }
-        JamCommand::Up(up_args) => {
+        PolkajamCommand::Up(up_args) => {
             commands::up::execute(up_args)?;
         }
-        JamCommand::Down(down_args) => {
+        PolkajamCommand::Down(down_args) => {
             commands::down::execute(down_args)?;
         }
-        JamCommand::Deploy(deploy_args) => {
+        PolkajamCommand::Deploy(deploy_args) => {
             commands::deploy::execute(deploy_args)?;
         }
-        JamCommand::Monitor(monitor_args) => {
+        PolkajamCommand::Monitor(monitor_args) => {
             commands::monitor::execute(monitor_args)?;
         }
-        JamCommand::Test(test_args) => {
+        PolkajamCommand::Test(test_args) => {
             commands::test::execute(test_args)?;
         }
     }

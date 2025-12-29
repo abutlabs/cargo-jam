@@ -1,23 +1,23 @@
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
-/// cargo-jam: Generate JAM service projects for Polkadot
+/// cargo-polkajam: Generate JAM service projects for Polkadot
 #[derive(Parser, Debug)]
 #[command(name = "cargo", bin_name = "cargo")]
 pub enum Cargo {
     /// JAM service generation and build tools
-    Jam(JamArgs),
+    Polkajam(PolkajamArgs),
 }
 
 #[derive(Parser, Debug)]
 #[command(version, about = "Generate JAM service projects for Polkadot")]
-pub struct JamArgs {
+pub struct PolkajamArgs {
     #[command(subcommand)]
-    pub command: JamCommand,
+    pub command: PolkajamCommand,
 }
 
 #[derive(Subcommand, Debug)]
-pub enum JamCommand {
+pub enum PolkajamCommand {
     /// Create a new JAM service project
     New(NewArgs),
 

@@ -1,17 +1,17 @@
 [package]
-name = "cargo-jam"
+name = "cargo-polkajam"
 version = "0.1.0"
 edition = "2021"
 authors = ["Abutlabs"]
 license = "Apache-2.0"
 description = "A cargo subcommand for generating JAM service projects for Polkadot"
-repository = "https://github.com/abutlabs/cargo-jam"
+repository = "https://github.com/abutlabs/cargo-polkajam"
 keywords = ["cargo", "jam", "polkadot", "pvm", "risc-v"]
 categories = ["development-tools::cargo-plugins"]
 readme = "README.md"
 
 [[bin]]
-name = "cargo-jam"
+name = "cargo-polkajam"
 path = "src/main.rs"
 
 [dependencies]
