@@ -11,7 +11,7 @@ const TEST_SERVICE_NAME: &str = "jam-test-service";
 
 pub fn execute(args: TestArgs) -> Result<()> {
     println!(
-        "\n{} Running cargo-jam end-to-end tests\n",
+        "\n{} Running cargo-polkajam end-to-end tests\n",
         style("🧪").bold()
     );
 
@@ -20,7 +20,7 @@ pub fn execute(args: TestArgs) -> Result<()> {
     if !config.is_installed() {
         return Err(CargoJamError::ToolchainMissing {
             tool: "JAM toolchain".to_string(),
-            install_hint: "Run 'cargo jam setup' to install the JAM toolchain".to_string(),
+            install_hint: "Run 'cargo polkajam setup' to install the JAM toolchain".to_string(),
         });
     }
 
@@ -28,7 +28,7 @@ pub fn execute(args: TestArgs) -> Result<()> {
     let test_dir = args
         .dir
         .clone()
-        .unwrap_or_else(|| std::env::temp_dir().join("cargo-jam-test"));
+        .unwrap_or_else(|| std::env::temp_dir().join("cargo-polkajam-test"));
 
     // Clean up previous test if exists
     if test_dir.exists() {
@@ -117,7 +117,7 @@ pub fn execute(args: TestArgs) -> Result<()> {
                         "    {} The testnet may have crashed. Try running manually:",
                         style("!").yellow()
                     );
-                    println!("    {} cargo jam up --foreground", style("$").dim());
+                    println!("    {} cargo polkajam up --foreground", style("$").dim());
                     test3_passed = false;
                     testnet_started = false;
                 }

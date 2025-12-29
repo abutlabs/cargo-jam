@@ -28,7 +28,7 @@ pub struct GitHubAsset {
 /// Fetch available releases from GitHub
 pub fn fetch_releases(limit: usize) -> Result<Vec<GitHubRelease>> {
     let client = reqwest::blocking::Client::builder()
-        .user_agent("cargo-jam")
+        .user_agent("cargo-polkajam")
         .build()
         .map_err(|e| CargoJamError::Git(format!("Failed to create HTTP client: {}", e)))?;
 
@@ -70,7 +70,7 @@ pub fn get_latest_release() -> Result<GitHubRelease> {
 /// Get a specific release by version
 pub fn get_release(version: &str) -> Result<GitHubRelease> {
     let client = reqwest::blocking::Client::builder()
-        .user_agent("cargo-jam")
+        .user_agent("cargo-polkajam")
         .build()
         .map_err(|e| CargoJamError::Git(format!("Failed to create HTTP client: {}", e)))?;
 
@@ -199,7 +199,7 @@ fn normalize_extracted_dir(toolchain_dir: &PathBuf) -> Result<()> {
 /// Download a file with progress indication
 fn download_file(url: &str, dest: &PathBuf) -> Result<()> {
     let client = reqwest::blocking::Client::builder()
-        .user_agent("cargo-jam")
+        .user_agent("cargo-polkajam")
         .build()
         .map_err(|e| CargoJamError::Git(format!("Failed to create HTTP client: {}", e)))?;
 

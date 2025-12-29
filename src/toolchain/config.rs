@@ -14,7 +14,7 @@ pub struct ToolchainConfig {
 }
 
 impl ToolchainConfig {
-    /// Get the cargo-jam home directory (~/.cargo-polkajam)
+    /// Get the cargo-polkajam home directory (~/.cargo-polkajam)
     pub fn home_dir() -> Result<PathBuf> {
         let home = dirs::home_dir().ok_or_else(|| {
             CargoJamError::Io(std::io::Error::new(

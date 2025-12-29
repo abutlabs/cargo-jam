@@ -1,4 +1,4 @@
-//! cargo-jam: Generate JAM service projects for Polkadot
+//! cargo-polkajam: Generate JAM service projects for Polkadot
 //!
 //! This crate provides a cargo subcommand for generating JAM (Join-Accumulate Machine)
 //! service projects for Polkadot. It follows the architecture of cargo-generate while

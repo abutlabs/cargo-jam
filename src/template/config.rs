@@ -92,17 +92,17 @@ pub struct ConditionalConfig {
 
 impl TemplateConfig {
     pub fn load_from_dir(dir: &Path) -> Result<Self> {
-        let config_path = dir.join("cargo-jam.toml");
+        let config_path = dir.join("cargo-polkajam.toml");
 
         if !config_path.exists() {
             return Err(CargoJamError::TemplateConfig(
-                "cargo-jam.toml not found in template directory".to_string(),
+                "cargo-polkajam.toml not found in template directory".to_string(),
             ));
         }
 
         let content = std::fs::read_to_string(&config_path)?;
         let config: TemplateConfig = toml::from_str(&content).map_err(|e| {
-            CargoJamError::TemplateConfig(format!("Failed to parse cargo-jam.toml: {}", e))
+            CargoJamError::TemplateConfig(format!("Failed to parse cargo-polkajam.toml: {}", e))
         })?;
 
         Ok(config)
@@ -131,8 +131,8 @@ impl TemplateConfig {
             }
         }
 
-        // Always ignore cargo-jam.toml itself
-        if path == "cargo-jam.toml" {
+        // Always ignore cargo-polkajam.toml itself
+        if path == "cargo-polkajam.toml" {
             return true;
         }
 
