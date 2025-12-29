@@ -108,6 +108,19 @@ pub fn execute(args: TestArgs) -> Result<()> {
                     println!("{}", output);
                 }
                 testnet_started = true;
+
+                // Verify process is actually running after a moment
+                std::thread::sleep(Duration::from_secs(2));
+                if !is_testnet_process_running() {
+                    print_test_fail("Testnet process died immediately after starting");
+                    println!(
+                        "    {} The testnet may have crashed. Try running manually:",
+                        style("!").yellow()
+                    );
+                    println!("    {} cargo jam up --foreground", style("$").dim());
+                    test3_passed = false;
+                    testnet_started = false;
+                }
             }
             Err(e) => {
                 if e.to_string().contains("already running") {
@@ -125,34 +138,58 @@ pub fn execute(args: TestArgs) -> Result<()> {
                 "  {} Waiting for testnet to initialize...",
                 style("→").cyan()
             );
-            std::thread::sleep(Duration::from_secs(3));
+            // Give testnet time to start up (longer for CI environments)
+            std::thread::sleep(Duration::from_secs(10));
         }
 
-        // Step 3: Deploy service
+        // Step 3: Deploy service (with retries for connection issues)
         if test3_passed {
             println!("  {} Deploying service...", style("→").cyan());
-            match run_cargo_jam(&["deploy", jam_file.to_str().unwrap()], None, args.verbose) {
-                Ok(output) => {
-                    if output.contains("deployed successfully")
-                        || output.contains("created at slot")
-                    {
-                        println!("  {} Service deployed", style("✓").green());
-                        if let Some(line) = output
-                            .lines()
-                            .find(|l| l.contains("Service") && l.contains("created"))
+
+            let max_retries = 3;
+            let mut deploy_success = false;
+
+            for attempt in 1..=max_retries {
+                match run_cargo_jam(&["deploy", jam_file.to_str().unwrap()], None, args.verbose) {
+                    Ok(output) => {
+                        if output.contains("deployed successfully")
+                            || output.contains("created at slot")
                         {
-                            println!("    {}", style(line.trim()).dim());
+                            println!("  {} Service deployed", style("✓").green());
+                            if let Some(line) = output
+                                .lines()
+                                .find(|l| l.contains("Service") && l.contains("created"))
+                            {
+                                println!("    {}", style(line.trim()).dim());
+                            }
+                            deploy_success = true;
+                            break;
+                        } else {
+                            print_test_fail("Deploy succeeded but output unexpected");
+                            println!("{}", output);
+                            break;
                         }
-                    } else {
-                        print_test_fail("Deploy succeeded but output unexpected");
-                        println!("{}", output);
-                        test3_passed = false;
+                    }
+                    Err(e) => {
+                        let err_str = e.to_string();
+                        if err_str.contains("Connection refused") && attempt < max_retries {
+                            println!(
+                                "    {} Connection refused, retrying ({}/{})",
+                                style("!").yellow(),
+                                attempt,
+                                max_retries
+                            );
+                            std::thread::sleep(Duration::from_secs(5));
+                        } else {
+                            print_test_fail(&format!("Failed to deploy: {}", e));
+                            break;
+                        }
                     }
                 }
-                Err(e) => {
-                    print_test_fail(&format!("Failed to deploy: {}", e));
-                    test3_passed = false;
-                }
+            }
+
+            if !deploy_success {
+                test3_passed = false;
             }
         }
 
@@ -277,4 +314,46 @@ fn print_test_pass(msg: &str) {
 
 fn print_test_fail(msg: &str) {
     println!("  {} {}", style("✗").red().bold(), msg);
+}
+
+/// Check if the testnet process is running by reading the PID file
+fn is_testnet_process_running() -> bool {
+    let home_dir = match dirs::home_dir() {
+        Some(h) => h,
+        None => return false,
+    };
+
+    let pid_file = home_dir.join(".cargo-jam").join("testnet.pid");
+    if !pid_file.exists() {
+        return false;
+    }
+
+    let pid_str = match fs::read_to_string(&pid_file) {
+        Ok(s) => s,
+        Err(_) => return false,
+    };
+
+    let pid: i32 = match pid_str.trim().parse() {
+        Ok(p) => p,
+        Err(_) => return false,
+    };
+
+    // Check if process is running
+    #[cfg(unix)]
+    {
+        Command::new("kill")
+            .args(["-0", &pid.to_string()])
+            .output()
+            .map(|o| o.status.success())
+            .unwrap_or(false)
+    }
+
+    #[cfg(windows)]
+    {
+        Command::new("tasklist")
+            .args(["/FI", &format!("PID eq {}", pid)])
+            .output()
+            .map(|o| String::from_utf8_lossy(&o.stdout).contains(&pid.to_string()))
+            .unwrap_or(false)
+    }
 }
