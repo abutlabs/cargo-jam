@@ -1,0 +1,82 @@
+//! {{ description }}
+//!
+//! This is a JAM (Join-Accumulate Machine) service for Polkadot.
+//! JAM services have four entry points:
+//! - `refine`: Stateless computation (up to 6 seconds PVM execution)
+//! - `accumulate`: Stateful integration into chain state (~10ms)
+//! - `on_transfer`: Inter-service communication
+//! - `is_authorized`: Work item validation
+
+#![no_std]
+#![no_main]
+
+// Uncomment when jam-pvm-common is available on crates.io
+// use jam_pvm_common::{declare_service, Service};
+// use jam_types::{WorkItem, WorkResult, ServiceState};
+
+/// {{ project_name | pascal_case }} JAM Service
+///
+/// {{ description }}
+pub struct {{ project_name | pascal_case }}Service;
+
+// Uncomment when jam-pvm-common is available on crates.io
+/*
+impl Service for {{ project_name | pascal_case }}Service {
+    /// Refine: Stateless computation that transforms work items into work results.
+    ///
+    /// This runs off-chain with up to 6 seconds of PVM execution time.
+    /// - Accepts work items as input (up to 15 MB per time slot)
+    /// - Produces work results as output (max 90 KB)
+    /// - Can perform preimage lookups via hash
+    /// - Runs in a metered PVM environment
+    fn refine(work_item: WorkItem) -> WorkResult {
+        // TODO: Implement your stateless refinement logic here
+        WorkResult::default()
+    }
+
+    /// Accumulate: Stateful function that integrates work results into chain state.
+    ///
+    /// This runs on-chain with approximately 10ms execution time.
+    /// - Read storage from any service
+    /// - Write to its own key-value store
+    /// - Transfer funds between services
+    /// - Create new services
+    /// - Upgrade its own code
+    fn accumulate(results: &[WorkResult], state: &mut ServiceState) {
+        // TODO: Implement your stateful accumulation logic here
+        for _result in results {
+            // Process each work result
+        }
+    }
+
+    /// OnTransfer: Handles inter-service communication asynchronously.
+    ///
+    /// - Receives messages from other services
+    /// - Can modify this service's state
+    /// - Can inspect other services' state
+    /// - Executes asynchronously within the same 6-second period
+    fn on_transfer(sender: u32, payload: &[u8], state: &mut ServiceState) {
+        // TODO: Handle incoming transfers from other services
+        let _ = (sender, payload, state);
+    }
+
+    /// IsAuthorized: Validates whether a work item should be processed.
+    ///
+    /// Return true to allow the work item to be refined.
+    /// Return false to reject the work item.
+    fn is_authorized(work_item: &WorkItem) -> bool {
+        // TODO: Implement authorization logic
+        let _ = work_item;
+        true
+    }
+}
+
+// Generate PVM entry points for the JAM chain
+declare_service!({{ project_name | pascal_case }}Service);
+*/
+
+// Panic handler for no_std
+#[panic_handler]
+fn panic(_info: &core::panic::PanicInfo) -> ! {
+    loop {}
+}

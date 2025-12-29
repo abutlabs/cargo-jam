@@ -1,0 +1,43 @@
+[template]
+name = "basic-service"
+description = "A basic JAM service with refine and accumulate entry points"
+version = "0.1.0"
+
+include = [
+    "Cargo.toml",
+    "src/lib.rs",
+    ".cargo/config.toml",
+    "README.md"
+]
+
+ignore = [
+    ".git",
+    "target",
+    "cargo-jam.toml"
+]
+
+[placeholders.project_name]
+type = "string"
+prompt = "Project name"
+regex = "^[a-z][a-z0-9_-]*$"
+
+[placeholders.author]
+type = "string"
+prompt = "Author name"
+default = ""
+
+[placeholders.author_email]
+type = "string"
+prompt = "Author email"
+default = ""
+
+[placeholders.license]
+type = "string"
+prompt = "License"
+choices = ["MIT", "Apache-2.0", "MIT OR Apache-2.0", "GPL-3.0", "Unlicense"]
+default = "MIT OR Apache-2.0"
+
+[placeholders.description]
+type = "string"
+prompt = "Project description"
+default = "A JAM service for Polkadot"

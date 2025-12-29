@@ -1,0 +1,11 @@
+[build]
+target = "riscv32ema-unknown-none-elf"
+
+[target.riscv32ema-unknown-none-elf]
+rustflags = [
+    "-C", "relocation-model=pic",
+]
+
+[unstable]
+build-std = ["core", "alloc"]
+build-std-features = ["panic_immediate_abort"]

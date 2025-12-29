@@ -1,0 +1,91 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Overview
+
+This is a JAM (Join-Accumulate Machine) service for Polkadot. JAM services have four entry points:
+
+- **refine**: Stateless computation (up to 6 seconds PVM execution, handles up to 15 MB input, produces max 90 KB output)
+- **accumulate**: Stateful integration into chain state (~10ms execution time)
+- **on_transfer**: Inter-service communication
+- **is_authorized**: Work item validation
+
+## Building
+
+### Prerequisites
+
+1. Install Rust nightly:
+   ```bash
+   rustup install nightly
+   rustup default nightly
+   ```
+
+2. Add the RISC-V target:
+   ```bash
+   rustup target add riscv32ema-unknown-none-elf
+   ```
+
+3. Install polkatool (when available):
+   ```bash
+   cargo install polkatool
+   ```
+
+### Build Commands
+
+```bash
+# Build the JAM service using cargo-jam
+cargo jam build --release
+
+# Or build manually:
+cargo +nightly build --release --target riscv32ema-unknown-none-elf \
+    -Z build-std=core,alloc \
+    -Z build-std-features=panic_immediate_abort
+
+# Link into a .jam blob (when polkatool is available):
+polkatool jam-service target/riscv32ema-unknown-none-elf/release/{{ project_name | snake_case }} -o {{ project_name }}.jam
+```
+
+## Deployment
+
+The build produces a `.jam` blob that can be deployed to the JAM chain.
+
+## JAM Service Entry Points
+
+### Refine
+
+The `refine` function is the primary processing workhorse. It performs stateless computation that transforms work items into work results. Key characteristics:
+
+- Runs off-chain
+- Up to 6 seconds PVM execution time
+- Accepts up to 15 MB of input data
+- Produces up to 90 KB of output
+- Can perform preimage lookups
+
+### Accumulate
+
+The `accumulate` function integrates work results into the chain state. It is stateful and can:
+
+- Read storage from any service
+- Write to its own key-value store
+- Transfer funds between services
+- Create new services
+- Upgrade its own code
+
+### OnTransfer
+
+The `on_transfer` function handles inter-service communication asynchronously. Messages and tokens are sent between services and processed within the same 6-second execution period.
+
+### IsAuthorized
+
+The `is_authorized` function validates whether a work item should be processed before it enters the refine stage.
+
+## Resources
+
+- [JAM Gray Paper](https://graypaper.com/)
+- [Polkadot Wiki - JAM Chain](https://wiki.polkadot.network/docs/learn-jam-chain)
+- [jam-pvm-common crate](https://docs.rs/jam-pvm-common)
+
+## License
+
+{{ license }}

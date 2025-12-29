@@ -1,0 +1,24 @@
+[package]
+name = "{{ project_name }}"
+version = "0.1.0"
+edition = "2021"
+{% if author != "" %}authors = ["{{ author }}{% if author_email != "" %} <{{ author_email }}>{% endif %}"]
+{% endif %}license = "{{ license }}"
+description = "{{ description }}"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# JAM service SDK
+# jam-pvm-common = "0.1"
+# jam-types = "0.1"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.release.package."*"]
+opt-level = "s"
