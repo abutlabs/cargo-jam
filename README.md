@@ -6,6 +6,10 @@ cargo, make me a JAM service
 
 A Rust cargo subcommand for generating and building JAM (Join-Accumulate Machine) services for Polkadot. Follows the [cargo-generate](https://github.com/cargo-generate/cargo-generate) project architecture while providing JAM-specific tooling.
 
+## Demo
+
+
+
 ## Installation
 
 ### Install From crates.io
@@ -453,7 +457,36 @@ The testnet tests will:
 2. Build it to a `.jam` blob
 3. Deploy it to the running testnet using `cargo jam deploy`
 
-## Publishing to crates.io
+## Publishing & Releases
+
+### Automated Releases (Recommended)
+
+This repo has CI/CD that automatically publishes to crates.io when you create a version tag:
+
+**One-time setup:**
+1. Get your crates.io API token from https://crates.io/settings/tokens
+2. Add it as a GitHub secret: Settings → Secrets → Actions → New secret
+   - Name: `CARGO_REGISTRY_TOKEN`
+   - Value: your token
+
+**To release a new version:**
+```bash
+# Update version in Cargo.toml
+# Commit changes
+git add . && git commit -m "Release v0.1.0"
+
+# Create and push a version tag
+git tag v0.1.0
+git push origin main --tags
+```
+
+This triggers the release workflow which:
+1. Runs all tests and lints
+2. Publishes to crates.io
+3. Builds binaries for Linux and macOS
+4. Creates a GitHub Release with downloadable binaries
+
+### Manual Publishing
 
 ```bash
 # Login to crates.io
