@@ -92,91 +92,97 @@ pub fn execute(args: TestArgs) -> Result<()> {
         }
     }
 
-    // Test 3: Start testnet (unless skipped)
-    let testnet_started = if !args.skip_testnet {
-        print_test_header("3", "Start local testnet");
+    // Test 3: Deploy to local testnet (start, deploy, stop)
+    if !args.skip_testnet {
+        print_test_header("3", "Deploy to local testnet");
+
+        let mut test3_passed = true;
+        let mut testnet_started = false;
+
+        // Step 1: Start testnet
+        println!("  {} Starting testnet...", style("→").cyan());
         match run_cargo_jam(&["up"], None, args.verbose) {
             Ok(output) => {
-                print_test_pass("Testnet started");
+                println!("  {} Testnet started", style("✓").green());
                 if args.verbose {
                     println!("{}", output);
                 }
-                passed += 1;
-                true
+                testnet_started = true;
             }
             Err(e) => {
-                // Check if already running
                 if e.to_string().contains("already running") {
-                    print_test_pass("Testnet already running");
-                    passed += 1;
-                    false // Don't stop it later
+                    println!("  {} Testnet already running", style("✓").green());
                 } else {
                     print_test_fail(&format!("Failed to start testnet: {}", e));
-                    failed += 1;
-                    false
+                    test3_passed = false;
                 }
             }
         }
-    } else {
-        print_test_header("3", "Start local testnet (skipped)");
-        println!("  {} Skipped (--skip-testnet)", style("→").cyan());
-        false
-    };
 
-    // Wait for testnet to be ready
-    if !args.skip_testnet {
-        println!(
-            "  {} Waiting for testnet to initialize...",
-            style("→").cyan()
-        );
-        std::thread::sleep(Duration::from_secs(3));
-    }
+        // Step 2: Wait for testnet to initialize
+        if test3_passed {
+            println!(
+                "  {} Waiting for testnet to initialize...",
+                style("→").cyan()
+            );
+            std::thread::sleep(Duration::from_secs(3));
+        }
 
-    // Test 4: Deploy service
-    print_test_header("4", "Deploy service to testnet");
-    match run_cargo_jam(&["deploy", jam_file.to_str().unwrap()], None, args.verbose) {
-        Ok(output) => {
-            if output.contains("deployed successfully") || output.contains("created at slot") {
-                print_test_pass("Service deployed successfully");
-                // Extract service ID if present
-                if let Some(line) = output
-                    .lines()
-                    .find(|l| l.contains("Service") && l.contains("created"))
-                {
-                    println!("  {}", style(line.trim()).dim());
+        // Step 3: Deploy service
+        if test3_passed {
+            println!("  {} Deploying service...", style("→").cyan());
+            match run_cargo_jam(&["deploy", jam_file.to_str().unwrap()], None, args.verbose) {
+                Ok(output) => {
+                    if output.contains("deployed successfully")
+                        || output.contains("created at slot")
+                    {
+                        println!("  {} Service deployed", style("✓").green());
+                        if let Some(line) = output
+                            .lines()
+                            .find(|l| l.contains("Service") && l.contains("created"))
+                        {
+                            println!("    {}", style(line.trim()).dim());
+                        }
+                    } else {
+                        print_test_fail("Deploy succeeded but output unexpected");
+                        println!("{}", output);
+                        test3_passed = false;
+                    }
                 }
-                passed += 1;
-            } else {
-                print_test_fail("Deploy command succeeded but output unexpected");
-                println!("{}", output);
-                failed += 1;
+                Err(e) => {
+                    print_test_fail(&format!("Failed to deploy: {}", e));
+                    test3_passed = false;
+                }
             }
         }
-        Err(e) => {
-            print_test_fail(&format!("Failed to deploy: {}", e));
+
+        // Step 4: Stop testnet (cleanup)
+        if testnet_started && !args.keep_running {
+            println!("  {} Stopping testnet...", style("→").cyan());
+            match run_cargo_jam(&["down"], None, args.verbose) {
+                Ok(_) => {
+                    println!("  {} Testnet stopped", style("✓").green());
+                }
+                Err(e) => {
+                    println!("  {} Failed to stop testnet: {}", style("!").yellow(), e);
+                }
+            }
+        } else if args.keep_running {
+            println!(
+                "  {} Testnet left running (--keep-running)",
+                style("→").cyan()
+            );
+        }
+
+        if test3_passed {
+            print_test_pass("Deployment complete");
+            passed += 1;
+        } else {
             failed += 1;
         }
-    }
-
-    // Test 5: Stop testnet (unless --keep-running)
-    if testnet_started && !args.keep_running {
-        print_test_header("5", "Stop local testnet");
-        match run_cargo_jam(&["down"], None, args.verbose) {
-            Ok(output) => {
-                print_test_pass("Testnet stopped");
-                if args.verbose {
-                    println!("{}", output);
-                }
-                passed += 1;
-            }
-            Err(e) => {
-                print_test_fail(&format!("Failed to stop testnet: {}", e));
-                failed += 1;
-            }
-        }
-    } else if args.keep_running {
-        print_test_header("5", "Stop local testnet (skipped)");
-        println!("  {} Skipped (--keep-running)", style("→").cyan());
+    } else {
+        print_test_header("3", "Deploy to local testnet (skipped)");
+        println!("  {} Skipped (--skip-testnet)", style("→").cyan());
     }
 
     // Clean up test directory

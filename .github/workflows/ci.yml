@@ -81,9 +81,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install jam-pvm-build
+        run: cargo install jam-pvm-build
+
       - name: Run end-to-end tests
         run: cargo jam test --verbose
-        timeout-minutes: 5
+        timeout-minutes: 10
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

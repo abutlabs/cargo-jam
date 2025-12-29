@@ -264,9 +264,7 @@ cargo jam test --dir /tmp/my-test
 **Tests performed:**
 1. Create new JAM service (`cargo jam new`)
 2. Build JAM service to `.jam` blob (`cargo jam build`)
-3. Start local testnet (`cargo jam up`)
-4. Deploy service to testnet (`cargo jam deploy`)
-5. Stop testnet (`cargo jam down`)
+3. Deploy to local testnet (start → deploy → stop)
 
 ## Local Development
 
