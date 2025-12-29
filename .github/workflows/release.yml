@@ -56,9 +56,6 @@ jobs:
             target: x86_64-unknown-linux-gnu
             artifact: cargo-polkajam-linux-x86_64
           - os: macos-latest
-            target: x86_64-apple-darwin
-            artifact: cargo-polkajam-macos-x86_64
-          - os: macos-latest
             target: aarch64-apple-darwin
             artifact: cargo-polkajam-macos-aarch64
 
