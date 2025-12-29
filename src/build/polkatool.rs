@@ -31,7 +31,7 @@ impl JamtBuilder {
     pub fn binary_path() -> Result<PathBuf> {
         ToolchainConfig::binary_path("jamt")?.ok_or_else(|| CargoJamError::ToolchainMissing {
             tool: "jamt".to_string(),
-            install_hint: "Run 'cargo jam setup' to install the JAM toolchain".to_string(),
+            install_hint: "Run 'cargo polkajam setup' to install the JAM toolchain".to_string(),
         })
     }
 

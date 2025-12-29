@@ -111,7 +111,7 @@ pub fn execute(args: SetupArgs) -> Result<()> {
     println!(
         "\n{} You can now use {}",
         style("→").cyan(),
-        style("cargo jam build").green()
+        style("cargo polkajam build").green()
     );
 
     Ok(())
@@ -196,7 +196,7 @@ fn show_info() -> Result<()> {
         println!("  {} No toolchain installed", style("⚠").yellow());
         println!(
             "\n  Run {} to install the latest nightly.",
-            style("cargo jam setup").cyan()
+            style("cargo polkajam setup").cyan()
         );
     }
 
@@ -233,7 +233,7 @@ fn list_releases() -> Result<()> {
 
     println!(
         "\nInstall a specific version with: {}",
-        style("cargo jam setup --version <tag>").cyan()
+        style("cargo polkajam setup --version <tag>").cyan()
     );
 
     Ok(())

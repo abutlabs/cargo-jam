@@ -96,7 +96,7 @@ impl BuildPipeline {
         if !config.is_installed() {
             return Err(CargoJamError::ToolchainMissing {
                 tool: "JAM toolchain".to_string(),
-                install_hint: "Run 'cargo jam setup' to install the JAM toolchain".to_string(),
+                install_hint: "Run 'cargo polkajam setup' to install the JAM toolchain".to_string(),
             });
         }
 

@@ -107,7 +107,7 @@ pub fn execute(args: NewArgs) -> Result<()> {
     );
     println!("\nNext steps:");
     println!("  {} {}", style("cd").cyan(), project_name);
-    println!("  {} jam build", style("cargo").cyan());
+    println!("  {} polkajam build", style("cargo").cyan());
 
     Ok(())
 }

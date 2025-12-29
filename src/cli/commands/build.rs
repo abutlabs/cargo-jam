@@ -1,7 +1,6 @@
 use crate::build::pipeline::BuildPipeline;
 use crate::cli::args::BuildArgs;
 use crate::error::{CargoJamError, Result};
-use crate::toolchain::config::ToolchainConfig;
 use console::style;
 use indicatif::{ProgressBar, ProgressStyle};
 use std::path::Path;
@@ -38,16 +37,11 @@ pub fn execute(args: BuildArgs) -> Result<()> {
             );
 
             println!(
-                "\n{} Deploy with: {} create-service {}",
+                "\n{} Deploy with: {} polkajam deploy {}",
                 style("→").cyan(),
-                style("jamt").green(),
+                style("cargo").green(),
                 style(output_path.display()).yellow()
             );
-
-            // Show jamt path hint
-            if let Ok(Some(jamt_path)) = ToolchainConfig::binary_path("jamt") {
-                println!("  Full path: {}", style(jamt_path.display()).dim());
-            }
 
             Ok(())
         }

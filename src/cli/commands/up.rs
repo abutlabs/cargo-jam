@@ -13,14 +13,14 @@ pub fn execute(args: UpArgs) -> Result<()> {
     if !config.is_installed() {
         return Err(CargoJamError::ToolchainMissing {
             tool: "JAM toolchain".to_string(),
-            install_hint: "Run 'cargo jam setup' to install the JAM toolchain".to_string(),
+            install_hint: "Run 'cargo polkajam setup' to install the JAM toolchain".to_string(),
         });
     }
 
     let testnet_bin = ToolchainConfig::binary_path("polkajam-testnet")?.ok_or_else(|| {
         CargoJamError::ToolchainMissing {
             tool: "polkajam-testnet".to_string(),
-            install_hint: "Run 'cargo jam setup --force' to reinstall the toolchain".to_string(),
+            install_hint: "Run 'cargo polkajam setup --force' to reinstall the toolchain".to_string(),
         }
     })?;
 
@@ -39,7 +39,7 @@ pub fn execute(args: UpArgs) -> Result<()> {
                     style(pid).yellow()
                 );
                 println!("  RPC endpoint: {}", style("ws://localhost:19800").green());
-                println!("\n  Stop with: {}", style("cargo jam down").cyan());
+                println!("\n  Stop with: {}", style("cargo polkajam down").cyan());
                 return Ok(());
             }
         }
@@ -91,8 +91,8 @@ pub fn execute(args: UpArgs) -> Result<()> {
             style(pid).yellow()
         );
         println!("  RPC endpoint: {}", style("ws://localhost:19800").green());
-        println!("\n  Stop with: {}", style("cargo jam down").cyan());
-        println!("  View logs: {}", style("cargo jam up --foreground").dim());
+        println!("\n  Stop with: {}", style("cargo polkajam down").cyan());
+        println!("  View logs: {}", style("cargo polkajam up --foreground").dim());
     }
 
     Ok(())

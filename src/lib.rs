@@ -8,10 +8,10 @@
 //!
 //! ```bash
 //! # Create a new JAM service
-//! cargo jam new my-service
+//! cargo polkajam new my-service
 //!
 //! # Build a JAM service for PVM deployment
-//! cargo jam build --release
+//! cargo polkajam build --release
 //! ```
 
 pub mod build;

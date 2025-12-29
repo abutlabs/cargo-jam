@@ -10,14 +10,14 @@ pub fn execute(args: MonitorArgs) -> Result<()> {
     if !config.is_installed() {
         return Err(CargoJamError::ToolchainMissing {
             tool: "JAM toolchain".to_string(),
-            install_hint: "Run 'cargo jam setup' to install the JAM toolchain".to_string(),
+            install_hint: "Run 'cargo polkajam setup' to install the JAM toolchain".to_string(),
         });
     }
 
     let jamtop_bin =
         ToolchainConfig::binary_path("jamtop")?.ok_or_else(|| CargoJamError::ToolchainMissing {
             tool: "jamtop".to_string(),
-            install_hint: "Run 'cargo jam setup --force' to reinstall the toolchain".to_string(),
+            install_hint: "Run 'cargo polkajam setup --force' to reinstall the toolchain".to_string(),
         })?;
 
     println!("{} Starting JAM testnet monitor...", style("→").cyan());

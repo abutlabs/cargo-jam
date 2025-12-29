@@ -50,7 +50,7 @@ pub fn execute(args: DownArgs) -> Result<()> {
         println!("{} Testnet stopped", style("✓").green().bold());
     } else {
         return Err(CargoJamError::Build(format!(
-            "Failed to stop testnet (PID: {}). Try 'cargo jam down --force'",
+            "Failed to stop testnet (PID: {}). Try 'cargo polkajam down --force'",
             pid
         )));
     }

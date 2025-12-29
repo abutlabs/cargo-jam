@@ -10,14 +10,14 @@ pub fn execute(args: DeployArgs) -> Result<()> {
     if !config.is_installed() {
         return Err(CargoJamError::ToolchainMissing {
             tool: "JAM toolchain".to_string(),
-            install_hint: "Run 'cargo jam setup' to install the JAM toolchain".to_string(),
+            install_hint: "Run 'cargo polkajam setup' to install the JAM toolchain".to_string(),
         });
     }
 
     let jamt_bin =
         ToolchainConfig::binary_path("jamt")?.ok_or_else(|| CargoJamError::ToolchainMissing {
             tool: "jamt".to_string(),
-            install_hint: "Run 'cargo jam setup --force' to reinstall the toolchain".to_string(),
+            install_hint: "Run 'cargo polkajam setup --force' to reinstall the toolchain".to_string(),
         })?;
 
     // Verify the .jam file exists
