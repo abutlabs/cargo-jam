@@ -20,5 +20,6 @@ pub mod error;
 pub mod project;
 pub mod prompt;
 pub mod template;
+pub mod toolchain;
 
 pub use error::{CargoJamError, Result};

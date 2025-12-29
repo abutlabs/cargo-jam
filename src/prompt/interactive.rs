@@ -88,7 +88,7 @@ impl PromptRunner {
 
         input
             .interact_text()
-            .map_err(|e| CargoJamError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))
+            .map_err(|e| CargoJamError::Io(std::io::Error::other(e)))
     }
 
     pub fn prompt_select(
@@ -106,7 +106,7 @@ impl PromptRunner {
             .items(choices)
             .default(default_index)
             .interact()
-            .map_err(|e| CargoJamError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))?;
+            .map_err(|e| CargoJamError::Io(std::io::Error::other(e)))?;
 
         Ok(choices[selection].clone())
     }
@@ -116,7 +116,7 @@ impl PromptRunner {
             .with_prompt(prompt)
             .default(default)
             .interact()
-            .map_err(|e| CargoJamError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))
+            .map_err(|e| CargoJamError::Io(std::io::Error::other(e)))
     }
 }
 

@@ -1,10 +1,9 @@
-[build]
-target = "riscv32ema-unknown-none-elf"
+# JAM Service Build Configuration
+# The exact RISC-V target depends on the PolkaVM/JAM ecosystem
+# See: https://github.com/paritytech/polkavm for current target specs
 
-[target.riscv32ema-unknown-none-elf]
-rustflags = [
-    "-C", "relocation-model=pic",
-]
+[build]
+# target = "riscv32em-unknown-none-elf"  # Uncomment when target is available
 
 [unstable]
 build-std = ["core", "alloc"]

@@ -1,6 +1,7 @@
 use crate::build::pipeline::BuildPipeline;
 use crate::cli::args::BuildArgs;
 use crate::error::{CargoJamError, Result};
+use crate::toolchain::config::ToolchainConfig;
 use console::style;
 use indicatif::{ProgressBar, ProgressStyle};
 use std::path::Path;
@@ -13,17 +14,11 @@ pub fn execute(args: BuildArgs) -> Result<()> {
     // Validate this is a JAM service project
     validate_jam_project(&project_path)?;
 
-    let spinner = create_spinner("Building JAM service...");
+    let spinner = create_spinner("Building JAM service with jam-pvm-build...");
 
     let mut pipeline = BuildPipeline::new(project_path.clone());
 
-    if args.release {
-        pipeline = pipeline.release(true);
-    }
-
-    if args.no_link {
-        pipeline = pipeline.skip_link(true);
-    }
+    pipeline = pipeline.release(args.release);
 
     if let Some(output) = args.output {
         pipeline = pipeline.output(output);
@@ -42,10 +37,16 @@ pub fn execute(args: BuildArgs) -> Result<()> {
                 style(output_path.display()).cyan()
             );
 
-            if !args.no_link {
-                println!(
-                    "\nThe .jam blob is ready for deployment to the JAM chain."
-                );
+            println!(
+                "\n{} Deploy with: {} create-service {}",
+                style("→").cyan(),
+                style("jamt").green(),
+                style(output_path.display()).yellow()
+            );
+
+            // Show jamt path hint
+            if let Ok(Some(jamt_path)) = ToolchainConfig::binary_path("jamt") {
+                println!("  Full path: {}", style(jamt_path.display()).dim());
             }
 
             Ok(())

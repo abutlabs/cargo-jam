@@ -1,30 +1,56 @@
 use crate::error::{CargoJamError, Result};
-use std::path::{Path, PathBuf};
+use crate::toolchain::config::ToolchainConfig;
+use std::path::PathBuf;
 use std::process::Command;
-
-const RISC_V_TARGET: &str = "riscv32ema-unknown-none-elf";
 
 pub struct BuildPipeline {
     project_path: PathBuf,
-    release: bool,
     output_path: Option<PathBuf>,
-    skip_link: bool,
+    profile: BuildProfile,
+    auto_install: bool,
     verbose: bool,
+}
+
+#[derive(Clone, Copy, Default)]
+pub enum BuildProfile {
+    Debug,
+    #[default]
+    Release,
+    Production,
+}
+
+impl BuildProfile {
+    fn as_str(&self) -> &'static str {
+        match self {
+            BuildProfile::Debug => "debug",
+            BuildProfile::Release => "release",
+            BuildProfile::Production => "production",
+        }
+    }
 }
 
 impl BuildPipeline {
     pub fn new(project_path: PathBuf) -> Self {
         Self {
             project_path,
-            release: true,
             output_path: None,
-            skip_link: false,
+            profile: BuildProfile::Release,
+            auto_install: true,
             verbose: false,
         }
     }
 
+    pub fn profile(mut self, profile: BuildProfile) -> Self {
+        self.profile = profile;
+        self
+    }
+
     pub fn release(mut self, release: bool) -> Self {
-        self.release = release;
+        self.profile = if release {
+            BuildProfile::Release
+        } else {
+            BuildProfile::Debug
+        };
         self
     }
 
@@ -33,8 +59,8 @@ impl BuildPipeline {
         self
     }
 
-    pub fn skip_link(mut self, skip: bool) -> Self {
-        self.skip_link = skip;
+    pub fn auto_install(mut self, auto: bool) -> Self {
+        self.auto_install = auto;
         self
     }
 
@@ -43,124 +69,102 @@ impl BuildPipeline {
         self
     }
 
-    /// Execute the full PVM build pipeline
+    /// Execute the PVM build pipeline using jam-pvm-build
     pub fn run(&self) -> Result<PathBuf> {
         // Check for required tools
         self.check_toolchain()?;
 
-        // Step 1: Run cargo build targeting RISC-V
-        let elf_path = self.cargo_build()?;
-
-        if self.skip_link {
-            return Ok(elf_path);
-        }
-
-        // Step 2: Link with polkatool to produce .jam blob
-        let jam_path = self.polkatool_link(&elf_path)?;
+        // Build using jam-pvm-build
+        let jam_path = self.jam_pvm_build()?;
 
         Ok(jam_path)
     }
 
     fn check_toolchain(&self) -> Result<()> {
-        // Check for rustup target
-        let output = Command::new("rustup")
-            .args(["target", "list", "--installed"])
-            .output()
-            .map_err(|_| CargoJamError::ToolchainMissing {
-                tool: "rustup".to_string(),
-                install_hint: "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
-                    .to_string(),
-            })?;
+        // Check for jam-pvm-build
+        let jam_build_check = Command::new("jam-pvm-build").arg("--version").output();
 
-        let installed_targets = String::from_utf8_lossy(&output.stdout);
-        if !installed_targets.contains(RISC_V_TARGET) {
+        if jam_build_check.is_err() || !jam_build_check.unwrap().status.success() {
             return Err(CargoJamError::ToolchainMissing {
-                tool: format!("RISC-V target ({})", RISC_V_TARGET),
-                install_hint: format!("rustup target add {}", RISC_V_TARGET),
+                tool: "jam-pvm-build".to_string(),
+                install_hint: "Install with: cargo install jam-pvm-build".to_string(),
             });
         }
 
-        // Check for polkatool (only if we're linking)
-        if !self.skip_link {
-            let polkatool_check = Command::new("polkatool").arg("--version").output();
-
-            if polkatool_check.is_err() {
-                return Err(CargoJamError::ToolchainMissing {
-                    tool: "polkatool".to_string(),
-                    install_hint: "cargo install polkatool".to_string(),
-                });
-            }
+        // Check for JAM toolchain (for jamt and other tools)
+        let config = ToolchainConfig::load()?;
+        if !config.is_installed() {
+            return Err(CargoJamError::ToolchainMissing {
+                tool: "JAM toolchain".to_string(),
+                install_hint: "Run 'cargo jam setup' to install the JAM toolchain".to_string(),
+            });
         }
 
         Ok(())
     }
 
-    fn cargo_build(&self) -> Result<PathBuf> {
-        let mut cmd = Command::new("cargo");
-        cmd.arg("build")
-            .arg("--target")
-            .arg(RISC_V_TARGET)
-            .current_dir(&self.project_path);
+    fn jam_pvm_build(&self) -> Result<PathBuf> {
+        let mut cmd = Command::new("jam-pvm-build");
 
-        if self.release {
-            cmd.arg("--release");
+        // Set the project path
+        cmd.arg(&self.project_path);
+
+        // Set output path if specified
+        if let Some(ref output) = self.output_path {
+            cmd.arg("-o").arg(output);
         }
 
-        // Enable build-std for no_std support
-        cmd.arg("-Z").arg("build-std=core,alloc");
-        cmd.arg("-Z").arg("build-std-features=panic_immediate_abort");
+        // Set build profile
+        cmd.arg("-p").arg(self.profile.as_str());
+
+        // Set module type to service
+        cmd.arg("-m").arg("service");
+
+        // Auto-install rustc dependencies if enabled
+        if self.auto_install {
+            cmd.arg("--auto-install");
+        }
 
         if self.verbose {
-            cmd.arg("--verbose");
+            println!(
+                "Running: jam-pvm-build {:?}",
+                cmd.get_args().collect::<Vec<_>>()
+            );
         }
 
-        let status = cmd.status().map_err(|e| {
-            CargoJamError::Build(format!("Failed to execute cargo build: {}", e))
-        })?;
+        let output = cmd
+            .output()
+            .map_err(|e| CargoJamError::Build(format!("Failed to execute jam-pvm-build: {}", e)))?;
 
-        if !status.success() {
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            let stdout = String::from_utf8_lossy(&output.stdout);
             return Err(CargoJamError::Build(format!(
-                "Cargo build failed with status: {}",
-                status
+                "jam-pvm-build failed:\n{}\n{}",
+                stdout, stderr
             )));
         }
 
-        // Determine output ELF path
-        let profile = if self.release { "release" } else { "debug" };
-        let project_name = self.get_project_name()?;
+        // Determine output path
+        let output_path = if let Some(ref path) = self.output_path {
+            path.clone()
+        } else {
+            // jam-pvm-build outputs to current directory with crate name
+            let project_name = self.get_project_name()?;
+            std::env::current_dir()?.join(format!("{}.jam", project_name))
+        };
 
-        Ok(self
-            .project_path
-            .join("target")
-            .join(RISC_V_TARGET)
-            .join(profile)
-            .join(&project_name))
-    }
+        if !output_path.exists() {
+            // Try looking in project directory
+            let project_name = self.get_project_name()?;
+            let alt_path = self.project_path.join(format!("{}.jam", project_name));
+            if alt_path.exists() {
+                return Ok(alt_path);
+            }
 
-    fn polkatool_link(&self, elf_path: &Path) -> Result<PathBuf> {
-        let output_path = self.output_path.clone().unwrap_or_else(|| {
-            let name = elf_path.file_stem().unwrap().to_str().unwrap();
-            self.project_path.join(format!("{}.jam", name))
-        });
-
-        let mut cmd = Command::new("polkatool");
-        cmd.arg("jam-service")
-            .arg(elf_path)
-            .arg("-o")
-            .arg(&output_path);
-
-        if self.verbose {
-            cmd.arg("--verbose");
-        }
-
-        let status = cmd.status().map_err(|e| {
-            CargoJamError::Build(format!("Failed to execute polkatool: {}", e))
-        })?;
-
-        if !status.success() {
             return Err(CargoJamError::Build(format!(
-                "polkatool linking failed with status: {}",
-                status
+                "Build completed but output file not found at expected path: {}",
+                output_path.display()
             )));
         }
 
@@ -179,7 +183,7 @@ impl BuildPipeline {
             .get("package")
             .and_then(|p| p.get("name"))
             .and_then(|n| n.as_str())
-            .map(|s| s.replace('-', "_"))
+            .map(|s| s.to_string())
             .ok_or_else(|| CargoJamError::Build("Missing package name in Cargo.toml".to_string()))
     }
 }

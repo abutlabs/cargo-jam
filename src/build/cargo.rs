@@ -45,11 +45,12 @@ impl CargoBuilder {
 
         // Build-std flags for no_std
         cmd.arg("-Z").arg("build-std=core,alloc");
-        cmd.arg("-Z").arg("build-std-features=panic_immediate_abort");
+        cmd.arg("-Z")
+            .arg("build-std-features=panic_immediate_abort");
 
-        let output = cmd.output().map_err(|e| {
-            CargoJamError::Build(format!("Failed to execute cargo: {}", e))
-        })?;
+        let output = cmd
+            .output()
+            .map_err(|e| CargoJamError::Build(format!("Failed to execute cargo: {}", e)))?;
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);

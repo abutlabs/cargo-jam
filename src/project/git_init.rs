@@ -3,9 +3,8 @@ use std::path::Path;
 
 /// Initialize a git repository in the given directory
 pub fn init_git_repo(path: &Path) -> Result<()> {
-    git2::Repository::init(path).map_err(|e| {
-        CargoJamError::Git(format!("Failed to initialize git repository: {}", e))
-    })?;
+    git2::Repository::init(path)
+        .map_err(|e| CargoJamError::Git(format!("Failed to initialize git repository: {}", e)))?;
 
     // Create initial .gitignore if it doesn't exist
     let gitignore_path = path.join(".gitignore");

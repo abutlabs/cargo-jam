@@ -31,10 +31,10 @@ impl GitTemplateSource {
 
     pub fn fetch(&mut self) -> Result<PathBuf> {
         let temp_dir = TempDir::new().map_err(|e| {
-            CargoJamError::Io(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("Failed to create temp directory: {}", e),
-            ))
+            CargoJamError::Io(std::io::Error::other(format!(
+                "Failed to create temp directory: {}",
+                e
+            )))
         })?;
 
         let clone_path = temp_dir.path();

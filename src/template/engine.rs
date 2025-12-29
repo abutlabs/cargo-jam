@@ -34,9 +34,9 @@ impl TemplateEngine {
             globals.insert(key.clone().into(), Value::scalar(value.clone()));
         }
 
-        template.render(&globals).map_err(|e| {
-            CargoJamError::TemplateRender(format!("Failed to render template: {}", e))
-        })
+        template
+            .render(&globals)
+            .map_err(|e| CargoJamError::TemplateRender(format!("Failed to render template: {}", e)))
     }
 
     pub fn render_filename(

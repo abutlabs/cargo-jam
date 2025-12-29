@@ -1,26 +1,30 @@
 //! {{ description }}
 //!
 //! This is a JAM (Join-Accumulate Machine) service for Polkadot.
-//! JAM services have four entry points:
+//! JAM services implement two main entry points:
 //! - `refine`: Stateless computation (up to 6 seconds PVM execution)
 //! - `accumulate`: Stateful integration into chain state (~10ms)
-//! - `on_transfer`: Inter-service communication
-//! - `is_authorized`: Work item validation
 
 #![no_std]
 #![no_main]
 
-// Uncomment when jam-pvm-common is available on crates.io
-// use jam_pvm_common::{declare_service, Service};
-// use jam_types::{WorkItem, WorkResult, ServiceState};
+extern crate alloc;
+
+use alloc::vec::Vec;
+use jam_pvm_common::{
+    declare_service,
+    Service,
+    accumulate::{set_storage, get_storage},
+    jam_types::*,
+};
+
+declare_service!({{ project_name | pascal_case }}Service);
 
 /// {{ project_name | pascal_case }} JAM Service
 ///
 /// {{ description }}
-pub struct {{ project_name | pascal_case }}Service;
+struct {{ project_name | pascal_case }}Service;
 
-// Uncomment when jam-pvm-common is available on crates.io
-/*
 impl Service for {{ project_name | pascal_case }}Service {
     /// Refine: Stateless computation that transforms work items into work results.
     ///
@@ -29,9 +33,23 @@ impl Service for {{ project_name | pascal_case }}Service {
     /// - Produces work results as output (max 90 KB)
     /// - Can perform preimage lookups via hash
     /// - Runs in a metered PVM environment
-    fn refine(work_item: WorkItem) -> WorkResult {
+    fn refine(
+        _core_index: CoreIndex,
+        _item_index: usize,
+        _service_id: ServiceId,
+        payload: WorkPayload,
+        _package_hash: WorkPackageHash,
+    ) -> WorkOutput {
+        // Get the input data from the work payload
+        let data = payload.take();
+
         // TODO: Implement your stateless refinement logic here
-        WorkResult::default()
+        // This example just echoes back the input with a success prefix
+        let mut result = Vec::with_capacity(data.len() + 1);
+        result.push(0x01); // Success marker
+        result.extend_from_slice(&data);
+
+        result.into()
     }
 
     /// Accumulate: Stateful function that integrates work results into chain state.
@@ -42,41 +60,21 @@ impl Service for {{ project_name | pascal_case }}Service {
     /// - Transfer funds between services
     /// - Create new services
     /// - Upgrade its own code
-    fn accumulate(results: &[WorkResult], state: &mut ServiceState) {
+    fn accumulate(
+        _slot: Slot,
+        _service_id: ServiceId,
+        item_count: usize,
+    ) -> Option<Hash> {
+        // Update the count of processed items
+        let current_count = get_storage(b"count")
+            .and_then(|v| v.first().copied())
+            .unwrap_or(0);
+        let new_count = current_count.saturating_add(item_count as u8);
+        set_storage(b"count", &[new_count]).ok();
+
         // TODO: Implement your stateful accumulation logic here
-        for _result in results {
-            // Process each work result
-        }
+        // Read work results and update service state
+
+        None
     }
-
-    /// OnTransfer: Handles inter-service communication asynchronously.
-    ///
-    /// - Receives messages from other services
-    /// - Can modify this service's state
-    /// - Can inspect other services' state
-    /// - Executes asynchronously within the same 6-second period
-    fn on_transfer(sender: u32, payload: &[u8], state: &mut ServiceState) {
-        // TODO: Handle incoming transfers from other services
-        let _ = (sender, payload, state);
-    }
-
-    /// IsAuthorized: Validates whether a work item should be processed.
-    ///
-    /// Return true to allow the work item to be refined.
-    /// Return false to reject the work item.
-    fn is_authorized(work_item: &WorkItem) -> bool {
-        // TODO: Implement authorization logic
-        let _ = work_item;
-        true
-    }
-}
-
-// Generate PVM entry points for the JAM chain
-declare_service!({{ project_name | pascal_case }}Service);
-*/
-
-// Panic handler for no_std
-#[panic_handler]
-fn panic(_info: &core::panic::PanicInfo) -> ! {
-    loop {}
 }

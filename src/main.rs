@@ -29,6 +29,24 @@ fn run() -> Result<()> {
         JamCommand::Build(build_args) => {
             commands::build::execute(build_args)?;
         }
+        JamCommand::Setup(setup_args) => {
+            commands::setup::execute(setup_args)?;
+        }
+        JamCommand::Up(up_args) => {
+            commands::up::execute(up_args)?;
+        }
+        JamCommand::Down(down_args) => {
+            commands::down::execute(down_args)?;
+        }
+        JamCommand::Deploy(deploy_args) => {
+            commands::deploy::execute(deploy_args)?;
+        }
+        JamCommand::Monitor(monitor_args) => {
+            commands::monitor::execute(monitor_args)?;
+        }
+        JamCommand::Test(test_args) => {
+            commands::test::execute(test_args)?;
+        }
     }
 
     Ok(())

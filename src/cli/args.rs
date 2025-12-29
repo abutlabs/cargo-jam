@@ -23,6 +23,24 @@ pub enum JamCommand {
 
     /// Build a JAM service for PVM deployment
     Build(BuildArgs),
+
+    /// Setup the JAM/PVM toolchain
+    Setup(SetupArgs),
+
+    /// Start the local JAM testnet
+    Up(UpArgs),
+
+    /// Stop the local JAM testnet
+    Down(DownArgs),
+
+    /// Deploy a JAM service to the testnet
+    Deploy(DeployArgs),
+
+    /// Monitor the testnet with jamtop
+    Monitor(MonitorArgs),
+
+    /// Run end-to-end tests
+    Test(TestArgs),
 }
 
 #[derive(Parser, Debug)]
@@ -85,13 +103,122 @@ pub struct BuildArgs {
     #[arg(short, long)]
     pub output: Option<PathBuf>,
 
-    /// Skip polkatool linking (cargo build only)
-    #[arg(long)]
-    pub no_link: bool,
+    /// Verbose output
+    #[arg(short, long)]
+    pub verbose: bool,
+}
 
-    /// Additional cargo build arguments
-    #[arg(last = true)]
-    pub cargo_args: Vec<String>,
+#[derive(Parser, Debug)]
+pub struct SetupArgs {
+    /// Install a specific version (default: latest nightly)
+    #[arg(long)]
+    pub version: Option<String>,
+
+    /// List available toolchain versions
+    #[arg(long)]
+    pub list: bool,
+
+    /// Update to the latest nightly version
+    #[arg(long)]
+    pub update: bool,
+
+    /// Show currently installed toolchain info
+    #[arg(long)]
+    pub info: bool,
+
+    /// Force reinstall even if already installed
+    #[arg(long)]
+    pub force: bool,
+
+    /// Verbose output
+    #[arg(short, long)]
+    pub verbose: bool,
+}
+
+#[derive(Parser, Debug)]
+pub struct UpArgs {
+    /// RPC URL for the testnet (default: ws://localhost:19800)
+    #[arg(long, default_value = "ws://localhost:19800")]
+    pub rpc: String,
+
+    /// Run in foreground (default: background)
+    #[arg(long)]
+    pub foreground: bool,
+
+    /// Verbose output
+    #[arg(short, long)]
+    pub verbose: bool,
+}
+
+#[derive(Parser, Debug)]
+pub struct DownArgs {
+    /// Force kill the testnet process
+    #[arg(long)]
+    pub force: bool,
+
+    /// Verbose output
+    #[arg(short, long)]
+    pub verbose: bool,
+}
+
+#[derive(Parser, Debug)]
+pub struct DeployArgs {
+    /// Path to the .jam blob to deploy
+    pub code: PathBuf,
+
+    /// Initial endowment for the service
+    #[arg(long, default_value = "0")]
+    pub amount: String,
+
+    /// Memo for the service endowment
+    #[arg(long, default_value = "")]
+    pub memo: String,
+
+    /// Minimum accumulation gas per work-item
+    #[arg(long, short = 'G', default_value = "1000000")]
+    pub min_item_gas: String,
+
+    /// Minimum on-transfer gas per memo
+    #[arg(long, short = 'g', default_value = "1000000")]
+    pub min_memo_gas: String,
+
+    /// Register the service with the Bootstrap service
+    #[arg(long, short)]
+    pub register: Option<String>,
+
+    /// RPC URL for the testnet
+    #[arg(long, default_value = "ws://localhost:19800")]
+    pub rpc: String,
+
+    /// Verbose output
+    #[arg(short, long)]
+    pub verbose: bool,
+}
+
+#[derive(Parser, Debug)]
+pub struct MonitorArgs {
+    /// RPC URL for the testnet
+    #[arg(long, default_value = "ws://localhost:19800")]
+    pub rpc: String,
+
+    /// Verbose output
+    #[arg(short, long)]
+    pub verbose: bool,
+}
+
+#[derive(Parser, Debug)]
+pub struct TestArgs {
+    /// Keep testnet running after tests
+    #[arg(long)]
+    pub keep_running: bool,
+
+    /// Skip testnet startup (assume already running)
+    #[arg(long)]
+    pub skip_testnet: bool,
+
+    /// Test directory (default: temp directory)
+    #[arg(long)]
+    pub dir: Option<std::path::PathBuf>,
 
     /// Verbose output
     #[arg(short, long)]

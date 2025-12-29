@@ -29,16 +29,14 @@ impl ProjectGenerator {
         // Walk through template directory
         for entry in WalkDir::new(&self.template_dir) {
             let entry = entry.map_err(|e| {
-                CargoJamError::Io(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    format!("Failed to walk directory: {}", e),
-                ))
+                CargoJamError::Io(std::io::Error::other(format!(
+                    "Failed to walk directory: {}",
+                    e
+                )))
             })?;
 
             let path = entry.path();
-            let relative_path = path
-                .strip_prefix(&self.template_dir)
-                .unwrap_or(path);
+            let relative_path = path.strip_prefix(&self.template_dir).unwrap_or(path);
 
             // Skip the template directory itself
             if relative_path.as_os_str().is_empty() {

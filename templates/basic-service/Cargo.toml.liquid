@@ -6,19 +6,11 @@ edition = "2021"
 {% endif %}license = "{{ license }}"
 description = "{{ description }}"
 
-[lib]
-crate-type = ["cdylib"]
-
 [dependencies]
-# JAM service SDK
-# jam-pvm-common = "0.1"
-# jam-types = "0.1"
+jam-pvm-common = { version = "0.1", default-features = false, features = ["service"] }
+polkavm-derive = "0.29"
 
 [profile.release]
-opt-level = "s"
-lto = true
-codegen-units = 1
 panic = "abort"
-
-[profile.release.package."*"]
-opt-level = "s"
+lto = true
+opt-level = "z"

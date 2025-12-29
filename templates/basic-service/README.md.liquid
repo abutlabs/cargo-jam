@@ -15,35 +15,23 @@ This is a JAM (Join-Accumulate Machine) service for Polkadot. JAM services have 
 
 ### Prerequisites
 
-1. Install Rust nightly:
+1. Install Rust nightly (required for `build-std`):
    ```bash
    rustup install nightly
-   rustup default nightly
    ```
 
-2. Add the RISC-V target:
-   ```bash
-   rustup target add riscv32ema-unknown-none-elf
-   ```
-
-3. Install polkatool (when available):
-   ```bash
-   cargo install polkatool
-   ```
+2. Install PolkaVM toolchain (when available):
+   - See [github.com/paritytech/polkavm](https://github.com/paritytech/polkavm) for target specs
+   - The exact RISC-V target will be provided by the JAM ecosystem
 
 ### Build Commands
 
 ```bash
-# Build the JAM service using cargo-jam
+# Build using cargo-jam (when PVM toolchain is ready)
 cargo jam build --release
 
-# Or build manually:
-cargo +nightly build --release --target riscv32ema-unknown-none-elf \
-    -Z build-std=core,alloc \
-    -Z build-std-features=panic_immediate_abort
-
-# Link into a .jam blob (when polkatool is available):
-polkatool jam-service target/riscv32ema-unknown-none-elf/release/{{ project_name | snake_case }} -o {{ project_name }}.jam
+# For now, verify the code compiles:
+cargo +nightly check
 ```
 
 ## Deployment
