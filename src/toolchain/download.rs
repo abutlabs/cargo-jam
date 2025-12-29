@@ -33,8 +33,14 @@ pub fn fetch_releases(limit: usize) -> Result<Vec<GitHubRelease>> {
         .map_err(|e| CargoJamError::Git(format!("Failed to create HTTP client: {}", e)))?;
 
     let url = format!("{}?per_page={}", GITHUB_API_URL, limit);
-    let response = client
-        .get(&url)
+    let mut request = client.get(&url);
+
+    // Use GITHUB_TOKEN if available (for CI environments with rate limits)
+    if let Ok(token) = std::env::var("GITHUB_TOKEN") {
+        request = request.header("Authorization", format!("Bearer {}", token));
+    }
+
+    let response = request
         .send()
         .map_err(|e| CargoJamError::Git(format!("Failed to fetch releases: {}", e)))?;
 
@@ -69,8 +75,14 @@ pub fn get_release(version: &str) -> Result<GitHubRelease> {
         .map_err(|e| CargoJamError::Git(format!("Failed to create HTTP client: {}", e)))?;
 
     let url = format!("{}/tags/{}", GITHUB_API_URL, version);
-    let response = client
-        .get(&url)
+    let mut request = client.get(&url);
+
+    // Use GITHUB_TOKEN if available (for CI environments with rate limits)
+    if let Ok(token) = std::env::var("GITHUB_TOKEN") {
+        request = request.header("Authorization", format!("Bearer {}", token));
+    }
+
+    let response = request
         .send()
         .map_err(|e| CargoJamError::Git(format!("Failed to fetch release {}: {}", version, e)))?;
 

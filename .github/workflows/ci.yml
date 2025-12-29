@@ -45,6 +45,8 @@ jobs:
 
       - name: Setup JAM toolchain
         run: cargo jam setup
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify toolchain installation
         run: cargo jam setup --info
@@ -76,10 +78,14 @@ jobs:
 
       - name: Setup JAM toolchain
         run: cargo jam setup
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run end-to-end tests
         run: cargo jam test --verbose
         timeout-minutes: 5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   lint:
     name: Lint
